@@ -1,0 +1,19 @@
+{
+  "name": "strippr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "beefy index.js"
+  },
+  "author": "David Guttman <david@guttman.io> (http://davidguttman.com/)",
+  "license": "MIT",
+  "devDependencies": {
+    "beefy": "^2.1.3",
+    "browserify": "^9.0.3",
+    "watchify": "^2.5.0"
+  },
+  "dependencies": {
+    "canvas-testbed": "^1.0.3"
+  }
+}
