@@ -1,10 +1,14 @@
-var drop = require('./lib/drop')
 var testbed = require('canvas-testbed')
+var onAnimation = require('./lib/animations')
+
+var nBalls = 40
+var animations = []
+
+testbed(tick)
+onAnimation(playAnimation)
 
 function tick(ctx, width, height) {
   ctx.clearRect(0, 0, width, height)
-
-  var nBalls = 40
 
   var yStrip = height/5
   var padStrip = width/10
@@ -13,36 +17,69 @@ function tick(ctx, width, height) {
   var ballHeight = ballWidth
   var ballSpacing = ballWidth/5
 
-  for (var i = 0; i < nBalls; i++) {
+  var balls = []
+
+  animations.forEach(function(anim) {
+    var frame = anim.frames[anim.curFrame]
+    if (!frame) return
+
+    frame.forEach(function(color, i) {
+      balls[i] = color
+    })
+    anim.curFrame += 1
+  })
+
+  balls.forEach(function(ball, i) {
     var x0 = padStrip/2 + (i * ballWidth)
     var x = x0 + ballSpacing/2
     var y = yStrip
     var w = ballWidth - ballSpacing
+    ctx.fillStyle = 'rgb('+ball.join(',')+')'
     ctx.fillRect(x, y, w, ballHeight)
-  }
+  })
 
 }
 
-var animations = document.createElement('div')
-animations.style.position = 'absolute'
-animations.style.zIndex = 1000
-animations.style.bottom = 0
-animations.style.left = 0
-animations.style.width = '100%'
-animations.style.height = '50%'
-animations.style.borderTop = '1px solid gray'
-animations.style.padding = 10 + 'px'
-document.body.appendChild(animations)
+function playAnimation (img) {
+  var canvas = document.createElement('canvas')
+  canvas.width = nBalls
+  canvas.height = img.height
+  var ctx = canvas.getContext('2d')
 
-drop(animations, function(err, url) {
-  // console.log('url', url)
-  var img = makeImg(url)
-  animations.appendChild(img)
-})
-testbed(tick)
+  ctx.drawImage(img, 0, 0, nBalls, img.height)
+  var frames = getColorFrames(ctx, nBalls, img.height)
 
-function makeImg (url) {
-  var img = document.createElement('img')
-  img.src = url
-  return img
+  var animation = {
+    img: img,
+    frames: frames,
+    curFrame: 0
+  }
+
+  animations.push(animation)
+}
+
+function getColorFrames (ctx, width, height) {
+  var imageData = ctx.getImageData(0, 0, width, height)
+  var data = imageData.data
+  var i, x, y, red, green, blue, alpha
+
+  var frames = []
+
+  for(y = 0; y < height; y++) {
+    var frame = []
+
+    for(x = 0; x < width; x++) {
+      i = ((width * y) + x)
+
+      red = data[i * 4]
+      green = data[i * 4 + 1]
+      blue = data[i * 4 + 2]
+      alpha = data[i * 4 + 3]
+
+      frame.push([red, green, blue])
+    }
+    frames.push(frame)
+  }
+
+  return frames
 }

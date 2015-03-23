@@ -14,6 +14,7 @@
     "watchify": "^2.5.0"
   },
   "dependencies": {
+    "bean": "^1.0.15",
     "canvas-testbed": "^1.0.3"
   }
 }
