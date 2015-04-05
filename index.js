@@ -24,7 +24,11 @@ function tick(ctx, width, height) {
     if (!frame) return
 
     frame.forEach(function(color, i) {
-      balls[i] = color
+      balls[i] = balls[i] || []
+      color.forEach(function(c, j) {
+        balls[i][j] = (balls[i][j] || 0) + c
+        if (balls[i][j] > 255) balls[i][j] = 255
+      })
     })
     anim.curFrame += 1
   })
