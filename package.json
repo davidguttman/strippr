@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "bean": "^1.0.15",
-    "canvas-testbed": "^1.0.3"
+    "canvas-testbed": "^1.0.3",
+    "serialport": "^1.6.3"
   }
 }
