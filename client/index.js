@@ -88,6 +88,7 @@ function getColorFrames (ctx, width, height) {
       frame.push([red, green, blue])
     }
     frames.push(frame)
+    frames.push(frame)
   }
 
   return frames

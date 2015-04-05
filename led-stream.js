@@ -36,9 +36,15 @@ setInterval(function() {
 function flatten (arr) {
   var flattened = []
   arr.forEach(function(col) {
+    fix(col)
     col.forEach(function(c) {
       flattened.push(c)
     })
   })
   return flattened
+}
+
+function fix (col) {
+  col.unshift(col.pop())
+  return col
 }
