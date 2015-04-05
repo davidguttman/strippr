@@ -13,7 +13,7 @@
 CRGB leds[NUM_LEDS];
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   FastLED.addLeds<WS2801, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);
 }
 

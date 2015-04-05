@@ -1,5 +1,8 @@
+var websocket = require('websocket-stream')
+var ws = websocket('ws://'+window.location.host)
+
 var testbed = require('canvas-testbed')
-var onAnimation = require('./lib/animations')
+var onAnimation = require('./animations')
 
 var nBalls = 40
 var animations = []
@@ -32,6 +35,8 @@ function tick(ctx, width, height) {
     })
     anim.curFrame += 1
   })
+
+  ws.write(JSON.stringify(balls))
 
   balls.forEach(function(ball, i) {
     var x0 = padStrip/2 + (i * ballWidth)

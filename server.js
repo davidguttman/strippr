@@ -1,33 +1,24 @@
-var SerialPort = require('serialport').SerialPort
+var http = require('http')
+var ecstatic = require('ecstatic')
+var websocket = require('websocket-stream')
 
-var port = '/dev/cu.usbmodem1421'
+var ledStream = require('./led-stream')
 
-var serial = new SerialPort(port, {baudrate:9600})
+var server = http.createServer(ecstatic({
+  root: __dirname + '/public'
+}))
 
-serial.on('open',function() {
-  console.log('Port open')
-})
+var port = process.env.PORT || 3000
 
-serial.on('data', function(data) {
-  console.log(data.toString())
-})
+server.listen(port)
 
-var leds = []
-for (var i = 0; i < 40; i++) {
-  leds.push(ranColor())
-  leds.push(ranColor())
-  leds.push(ranColor())
-}
+console.log("Server running on port " + port)
 
-setInterval(function() {
-  var buf = new Buffer(leds)
-  console.log('buf', buf)
-  serial.write(buf)
-  leds.push(leds.shift())
-  leds.push(leds.shift())
-  leds.push(leds.shift())
-}, 20)
+var wss = websocket.createServer({server: server}, handle)
 
-function ranColor () {
-  return Math.floor(Math.random()*256)
+function handle(stream) {
+  stream.on('data', function(buf) {
+    var data = JSON.parse(buf)
+    ledStream.write(data)
+  })
 }
