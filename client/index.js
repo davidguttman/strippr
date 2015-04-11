@@ -1,3 +1,4 @@
+var earstream = require('earstream')
 var websocket = require('websocket-stream')
 var ws = websocket('ws://'+window.location.host)
 
@@ -10,6 +11,12 @@ var animations = []
 testbed(tick)
 onAnimation(playAnimation)
 
+var es = earstream(3)
+var soundState = []
+es.on('data', function(data) {
+  soundState = data.norm
+})
+
 function tick(ctx, width, height) {
   ctx.clearRect(0, 0, width, height)
 
@@ -21,6 +28,12 @@ function tick(ctx, width, height) {
   var ballSpacing = ballWidth/5
 
   var balls = []
+
+  for (var i = 0; i < nBalls; i++) {
+    balls.push(soundState.map(function(v) {
+      return Math.round(255*v)
+    }))
+  }
 
   animations.forEach(function(anim) {
     var frame = anim.frames[anim.curFrame]
