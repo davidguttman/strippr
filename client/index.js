@@ -5,7 +5,7 @@ var ws = websocket('ws://'+window.location.host)
 var testbed = require('canvas-testbed')
 var onAnimation = require('./animations')
 
-var nBalls = 40
+var nBalls = 20
 var animations = []
 
 testbed(tick)
@@ -29,11 +29,13 @@ function tick(ctx, width, height) {
 
   var balls = []
 
-  for (var i = 0; i < nBalls; i++) {
-    balls.push(soundState.map(function(v) {
-      return Math.round(255*v)
-    }))
-  }
+  // for (var i = 0; i < nBalls; i++) {
+  //   balls.push(soundState.map(function(v) {
+  //     var str = 1 - Math.abs((nBalls/2) - i)/(nBalls/2)
+  //     str = Math.pow(str, 4)
+  //     return Math.round(str*64*v)
+  //   }))
+  // }
 
   animations.forEach(function(anim) {
     var frame = anim.frames[anim.curFrame]
@@ -93,9 +95,9 @@ function getColorFrames (ctx, width, height) {
     for(x = 0; x < width; x++) {
       i = ((width * y) + x)
 
-      red = data[i * 4]
-      green = data[i * 4 + 1]
-      blue = data[i * 4 + 2]
+      red = Math.round(data[i * 4]/2)
+      green = Math.round(data[i * 4 + 1]/2)
+      blue = Math.round(data[i * 4 + 2]/2)
       alpha = data[i * 4 + 3]
 
       frame.push([red, green, blue])

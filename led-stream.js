@@ -1,7 +1,7 @@
 var through = require('through2')
 var SerialPort = require('serialport').SerialPort
 
-var port = '/dev/cu.usbmodem1421'
+var port = '/dev/cu.usbmodem1411'
 
 var serial = new SerialPort(port, {baudrate:115200})
 
@@ -21,6 +21,8 @@ serial.on('data', function(data) {
   console.log(data.toString())
 })
 
+serial.on('error', function() {})
+
 module.exports = through.obj(function(chunk, enc, cb) {
   var flat = flatten(chunk)
   for (var i = 0; i < nColors; i++) { leds[i] = flat[i] || 0 }
@@ -29,9 +31,9 @@ module.exports = through.obj(function(chunk, enc, cb) {
 
 setInterval(function() {
   var buf = new Buffer(leds)
-  console.log('leds', JSON.stringify(leds))
+  // console.log('leds', JSON.stringify(leds))
   serial.write(buf)
-}, 50)
+}, 20)
 
 function flatten (arr) {
   var flattened = []
