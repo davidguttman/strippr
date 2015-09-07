@@ -5,7 +5,7 @@ var port = '/dev/cu.usbmodem1411'
 
 var serial = new SerialPort(port, {baudrate:115200})
 
-var nLEDs = 40
+var nLEDs = 17
 var nColors = nLEDs * 3
 
 var leds = []

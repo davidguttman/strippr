@@ -1,3 +1,4 @@
+var _ = require('lodash')
 var earstream = require('earstream')
 var websocket = require('websocket-stream')
 var ws = websocket('ws://'+window.location.host)
@@ -5,8 +6,11 @@ var ws = websocket('ws://'+window.location.host)
 var testbed = require('canvas-testbed')
 var onAnimation = require('./animations')
 
-var nBalls = 20
+var nBalls = 17
 var animations = []
+var patterns = {}
+
+var curPlaying = null
 
 testbed(tick)
 onAnimation(playAnimation)
@@ -15,6 +19,21 @@ var es = earstream(3)
 var soundState = []
 es.on('data', function(data) {
   soundState = data.norm
+})
+
+ws.on('data', function (pStr) {
+  console.log('loading patterns', pStr.length)
+
+  patterns = {}
+
+  var pats = JSON.parse(pStr)
+  pats.forEach(function (pattern) {
+    var img = document.createElement('img')
+    img.src = 'data:image/png;base64,' + pattern.data
+    pattern.img = img
+
+    patterns[pattern.file] = pattern
+  })
 })
 
 function tick(ctx, width, height) {
@@ -29,17 +48,24 @@ function tick(ctx, width, height) {
 
   var balls = []
 
-  // for (var i = 0; i < nBalls; i++) {
-  //   balls.push(soundState.map(function(v) {
-  //     var str = 1 - Math.abs((nBalls/2) - i)/(nBalls/2)
-  //     str = Math.pow(str, 4)
-  //     return Math.round(str*64*v)
-  //   }))
-  // }
+  for (var i = 0; i < nBalls; i++) {
+    balls.push(soundState.map(function(v) {
+      // var str = 1 - Math.abs((nBalls/2) - i)/(nBalls/2)
+      v = Math.pow(v, 4)
+      return Math.round(128*v)
+    }))
+  }
 
-  animations.forEach(function(anim) {
+  if (!(animations.length >= 1)) playAnimation(_.sample(patterns))
+
+  var finished = []
+
+  animations.forEach(function(anim, idx) {
     var frame = anim.frames[anim.curFrame]
-    if (!frame) return
+    if (!frame) {
+      if (curPlaying === anim.file) curPlaying = null
+      return finished.push(idx)
+    }
 
     frame.forEach(function(color, i) {
       balls[i] = balls[i] || []
@@ -49,6 +75,10 @@ function tick(ctx, width, height) {
       })
     })
     anim.curFrame += 1
+  })
+
+  finished.reverse().forEach(function (idx) {
+    animations.splice(idx, 1)
   })
 
   ws.write(JSON.stringify(balls))
@@ -64,7 +94,14 @@ function tick(ctx, width, height) {
 
 }
 
-function playAnimation (img) {
+function playAnimation (pattern) {
+  if (!pattern) return
+
+  console.log('playing', pattern)
+
+  var img = pattern.img || pattern
+  if (pattern.file) curPlaying = pattern.file
+
   var canvas = document.createElement('canvas')
   canvas.width = nBalls
   canvas.height = img.height
@@ -74,6 +111,7 @@ function playAnimation (img) {
   var frames = getColorFrames(ctx, nBalls, img.height)
 
   var animation = {
+    file: pattern.file,
     img: img,
     frames: frames,
     curFrame: 0
